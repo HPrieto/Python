@@ -217,15 +217,137 @@ if __name__=="__main__":
 	age=safeIntegerInput('Enter your age:')
 	print('your age is: ',age)
 
+#Files and operations
+textFile = open('python.txt','w')
+textFile.write('First line.\nSecond line.\n')
+textFile.close()
 
+#Write Random values to textfile
+import random
+f = open('integers.txt','w')
+for count in range(500):
+	number = random.randint(1,500)
+	f.write(str(number)+' ')
+	if count%10==0:f.write('\n')
+f.close()
 
+#Reading from textfile
+r = open('integers.txt','r')
+fileText = r.read()
+print('first pass', fileText)
 
+#Read and process file line by line
+print('\n\nRead line by line\n\n')
+r = open('integers.txt','r')
+lineNumber = 0
+for line in r:
+	lineNumber+=1
+	print('Line #'+str(lineNumber)+':',line)
 
+""" Write integers to file and add them all up """
+f = open('integer1.txt','w')
+for count in range(500):
+	number = random.randint(1,500)
+	f.write(str(number)+'\n')
+f.close()
 
+r = open('integer1.txt','r')
+fileSum = 0
+for line in r:
+	line = line.strip()
+	number = int(line)
+	fileSum += number
+print('\n\nThe sum is: ',fileSum)
 
+print('\n\n\nReading and Writing Objects with pickle.\n\n')
 
+import pickle
 
+#Write objects to file using pickle
+lyst = [25,'String Object',1992]
+fileObj = open('items.dat','wb')
+for item in lyst:
+	pickle.dump(item,fileObj)
+fileObj.close()
 
+#Load objects from file using pickle
+loadedLyst = list()
+fileObj = open('items.dat','rb')
+while True:
+	try:
+		item = pickle.load(fileObj)
+		loadedLyst.append(item)
+	except EOFError:
+		fileObj.close()
+		break
+print(loadedLyst)
+
+print('\n\n\nCreating New Classes\n\n')
+
+class Counter(object):
+	"""Models a counter."""
+	#Class Data Member(s)
+	instances=0
+
+	#Constructor
+	def __init__(self):
+		"""Sets up the counter."""
+		Counter.instances+=1
+		self.reset()
+
+	#Mutator Methods
+	def reset(self):
+		"""Sets the counter to 0."""
+		self._value=0
+
+	def increment(self,amount=1):
+		"""Adds amount to the counter."""
+		self._value+=amount
+
+	def decrement(self,amount=1):
+		"""Subtracts amount from the counter."""
+		self._value-=amount
+
+	#Accessor methods
+	def getValue(self):
+		"""Returns the counter's value."""
+		return self._value
+
+	def __str__(self):
+		"""Returns the string representation of the counter."""
+		return str(self._value)
+
+	def __eq__(self,other):
+		"""Returns True if self equals other
+		or False otherwise."""
+		if self is other: return True
+		if type(self) != type(other):return False
+		return self._value==other._value
+
+c1 = Counter()
+print('Counter initial value: ',c1)
+print('Counter getValue:      ',c1)
+
+c1.increment()
+print('Value After increment: ',c1)
+
+c1.increment(10)
+print('After incrementing 5:  ',c1)
+
+c1.decrement()
+print('After decrement:       ',c1)
+
+print('Number of instances before c2:',Counter.instances)
+
+c2 = Counter()
+
+print('Number of instances after c2: ',Counter.instances)
+
+print('c1==c2 before c1 reset: ',c1==c2)
+
+c1.reset()
+
+print('c1==c2 after reset:     ',c1==c2)
 
 
 
