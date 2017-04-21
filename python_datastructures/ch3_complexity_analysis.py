@@ -369,35 +369,214 @@ print('\nPerform Quicksort.')
 quicksort(quickList)
 print('\nQuickList After Sort:\n',quickList)
 
+print('\n\nMerge Sort\n\n')
+
+from arrays import Array 
+
+def mergeSort(lyst):
+	#lyst 		list being sorted
+	#copyBuffer temprorary space needed during merge
+	copyBuffer=Array(len(lyst))
+	mergeSortHelper(lyst,copyBuffer,0,len(lyst)-1)
+
+def mergeSortHelper(lyst,copyBuffer,low,high):
+	#high 			list being sorted
+	#copyBuffer temp space needed during merge
+	#low, high 		bounds of sublist
+	#middle 		midpoint of sublist
+	if low<high:
+		middle=(low+high)//2
+		mergeSortHelper(lyst,copyBuffer,low,middle)
+		mergeSortHelper(lyst,copyBuffer,middle+1,high)
+		merge(lyst,copyBuffer,low,middle,high)
+
+def merge(lyst,copyBuffer,low,middle,high):
+	#lyst 		list that is being sorted
+	#copyBuffer temp space needed during the mrege process
+	#low 		beginning of first sorted sublist
+	#middle 	end of first sorted sublist
+	#middle+1 	beginning of second sorted sublist
+	#high 		end of second sorted sublist
+
+	#initialize i1 and i2 to the first items in each sublist
+	i1=low
+	i2=middle+1
+
+	#Interleave items from the sublists into the
+	#copyBuffer in such a way that order is maintained
+	for i in range(low,high+1):
+		if i1>middle:
+			copyBuffer[i]=lyst[i2]#First sublist exhausted
+			i2+=1
+		elif i2>high:
+			copyBuffer[i]=lyst[i1]#Second sublist exhausted
+			i1+=1
+		elif lyst[i1]<lyst[i2]:
+			copyBuffer[i]=lyst[i1]#Item in first sublist<
+			i1+=1
+		else:
+			copyBuffer[i]=lyst[i2]#Item in second sublist
+			i2+=1
+	for i in range(low,high+1):   #Copy sorted items back to
+		lyst[i]=copyBuffer[i] 	  #proper position in lyst
 
 
+print('An Exponential Algorithm: Recursive Fibonacci')
 
+print('Convertin Fibonacci to a Linear Algorithm')
 
+def linearFib(n,counter):
+	"""Count the number of iterations in the Fibonacci
+	function."""
+	nSum=1
+	first=1
+	second=1
+	count=3
+	while count<=n:
+		counter.increment()
+		nSum=first+second
+		first=second
+		second=nSum
+		count+=1
+	return nSum
 
+print('Case Study: An Algorithm Profiler')
 
+from profiler import Profiler
+from algorithms import selectionSort
 
+p=Profiler()
 
+p.test(selectionSort) 	#Default behavior
 
+p.test(selectionSort,size=5,trace=True)
 
+p.test(selectionSort,size=100)
 
+p.test(selectionSort,size=1000)
 
+p.test(selectionSort,size=10000,exch=False,comp=False)
 
+#Design
 
+print('Implementation (Coding)')
 
+"""
+File: algorithms.py
+Algorithms configured for profiling.
+"""
 
+def selectionSort(lyst,profiler):
+	i=0
+	while i<len(lyst)-1:
+		minIndex=i
+		j=i+1
+		while j<len(lyst):
+			profiler.comparison()
+			if lyst[j]<lyst[minIndex]:
+				minIndex=j
+			j+=1
+		if minIndex!=i:
+			swap(lyst,minIndex,i,profiler)
+		i+=1
 
+def swap(lyst,i,j,profiler):
+	"""Exchanges the elements at positions i and j."""
+	profiler.exchange() 	#count
+	temp=lyst[i]
+	lyst[i]=lyst[j]
+	lyst[j]=temp
 
+#Testing code can go here, optionally
 
+"""
+File: profiler.py
 
+Defines a class for profiling sort alagorithms. 
+A profiler object tracks the list, the number of comparisons
+and exchanges, and the running time. The Profiler can also
+print a trace and can create a list of unique or duplicate
+numbers. 
 
+Example use:
 
+from profiler import Profiler
+from algorithms import selectionSort
 
+p=Profiler()
+p.test(selectionSort,size=15,comp=True,exch=True,trace=True)
+"""
 
+import time
+import random
 
+class Profiler(object):
+	def test(self,function,lyst=None,size=10,
+		unique=True,comp=True,exch=True,
+		trace=False):
+	"""
+	function: the algorithm being profiled
+	target:   the search target if profiling a search
+	lyst:     allows the caller to use her list
+	size:     the size of the list, 10 by default
+	unique:   if True, list contains unique integers
+	comp:     if True, count comparisons
+	exch:     if True,count exchanges
+	trace:    if True, print the list after each exchange
 
+	Run the function with the given attributes and print
+	its profile results.
+	"""
+	self._comp=comp
+	self._exch=exch
+	self._trace=trace
+	if lyst!=None:
+		self._lyst=lyst
+	elif unique:
+		self._lyst=range(1,size+1)
+		random.shuffle(self._lyst)
+	else:
+		self._lyst=[]
+		for count in range(size):
+			self._lyst.append(random.randint(1,size))
+	self._exchCount=0
+	self._cmpCount=0
+	self._startClock()
+	function(self._lyst,self)
+	self._stopClock()
+	print(self)
 
+def exchange(self):
+	"""Counts exchanges if on."""
+	if self._exch:
+		self._exchCount+=1
+	if self._trace:
+		print(self._lyst)
 
+def comparison(self):
+	"""Counts comparisons if on."""
+	if self._comp:
+		self._cmpCount+=1
 
+def _startClock(self):
+	"""Record the starting time."""
+	self._start=time.time()
 
+def _stopClock(self):
+	"""Stops the clock and computes the elapsed time
+	in seconds. to the nearest millisecond."""
+	self._elapsedTime=round(time.time()-self._start,3)
 
-
+def _str_(self):
+	"""Returns the results as a string."""
+	result="Problem size: "
+	result+=str(len(self._lyst))+'\n'
+	result+='Elapsed time: '
+	result+=str(self._elapsedTime)+'\n'
+	if self._comp:
+		result+='Comparisons: '
+		result+=str(self._cmpCount)+'\n'
+	if self._exch:
+		result+='Exchanges: '
+		result+=str(self._exchCount)+'\n'
+	return result
