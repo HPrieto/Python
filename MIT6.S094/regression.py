@@ -20,6 +20,7 @@ from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt 
 from matplotlib import style
 import pickle
+from statistics import mean
 
 style.use('ggplot')
 
@@ -45,7 +46,7 @@ forecast_col = 'Adj. Close'
 df.fillna(-99999,inplace=True)
 
 #Predict 10 days out
-forecast_out = int(math.ceil(0.01*len(df)))
+forecast_out = int(math.ceil(0.1*len(df)))
 
 #Shifting columns negatively
 df['label'] = df[forecast_col].shift(-forecast_out)
@@ -60,16 +61,16 @@ print('\n\nDataset Tail:')
 print(df.tail())
 """
 #Does not return label column
-x = np.array(df.drop(['label'],1))
+x = np.array(df.drop(['label','Adj. Close'],1))
 
 #scale x
 x = preprocessing.scale(x)
 
-#Prior to 30 days of data
-x = x[:-forecast_out]
-
 #Last 30 days of data
 x_lately = x[-forecast_out:]
+
+#Prior to 30 days of data
+x = x[:-forecast_out]
 
 #Only display available values
 df.dropna(inplace=True)
@@ -97,7 +98,7 @@ pickle_in = open('linearregression.pickle','rb')
 clf = pickle.load(pickle_in)
 
 accuracy = clf.score(x_test,y_test)
-#print(accuracy)
+#print('Accuracy: ',accuracy)
 """
 Never use the same data to test and train since the same data
 has already been used. 
@@ -137,6 +138,34 @@ plt.legend(loc=4)
 plt.xlabel('Date')
 plt.ylabel('Price')
 plt.show()
+print('Accuracy: ',accuracy)
+
+"""
+Linear Regression Notes:
+	y = m(x) + b
+	y: y-values
+	x: x-values
+	m: slope
+	b: y-intercept
+
+	How to find the slope(m):
+		mean(x) * mean(y) - mean(x * y)
+	m = -------------------------------
+		   (mean(x))^2 - mean(x^2)
+
+	How to find y-intercept(b):
+	b = mean(y) - m(mean(x))
+"""
+
+
+
+
+
+
+
+
+
+
 
 
 
