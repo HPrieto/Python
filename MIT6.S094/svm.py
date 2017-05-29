@@ -42,3 +42,36 @@ example_measures = example_measures.reshape(len(example_measures), -1)
 
 prediction = clf.predict(example_measures)
 print(prediction)
+
+"""
+	Vectors contain:
+		- Magnitude
+		- Direction
+
+	Dot Product of two Vectors:
+		V1 = [A, B]
+		V2 = [C, D]
+		V1 * V2 == (A * C) (B * D)
+	
+	X, W == Vectors
+	Width = (X+ - X-) * (W / magnitude(W))
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
