@@ -78,6 +78,32 @@ def register():
 	# render template
 	return render_template('register.html', form=form)
 
+# User Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+	if request.method == 'POST':
+		# Get username and password from form submitted by user
+		username = request.form['username']
+		password_candidate = request.form['password']
+		# Create a database cursor
+		cur = mysql.connection.cursor()
+		# GET user by username
+		result = cur.execute('SELECT * FROM users WHERE username = %s', [username])
+		# check results if any
+		if result > 0:
+			# get stored hash, fetch first query found
+			data = cur.fetchone()
+			# get password from database query
+			password = data['password']
+			# compare passwords
+			if sha256_crypt.verify(password_candidate, password):
+				app.logger.info('PASSWORD MATCHED')
+			else:
+				app.logger.info('PASSWORD NOT MATCHED')
+		else:
+			app.logger.info('NO USER FOUND')
+	return render_template('login.html')
+
 # check if __name__ will be executed
 if __name__ == '__main__':
 	# secret key
