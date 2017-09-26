@@ -3,8 +3,9 @@ from data import Articles
 from flask_mysqldb import MySQL
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
 
-# 21:00 stop time
+# 8:00 stop time
 
 # create instance of flask
 app = Flask(__name__) #placeholder for current module
@@ -97,12 +98,46 @@ def login():
 			password = data['password']
 			# compare passwords
 			if sha256_crypt.verify(password_candidate, password):
-				app.logger.info('PASSWORD MATCHED')
+				# Password valid
+				session['login'] = True
+				session['username'] = username
+				# Flash a message to user
+				flash('You are now logged in', 'success')
+				# Redirect
+				return redirect(url_for('dashboard'))
 			else:
-				app.logger.info('PASSWORD NOT MATCHED')
+				error = 'Invalid login'
+				return render_template('login.html', error=error)
+			# Close connection
+			cur.close()
 		else:
-			app.logger.info('NO USER FOUND')
+			error = 'Username not found'
+			return render_template('login.html', error=error)
 	return render_template('login.html')
+
+# Check if user logged in
+def is_logged_in(f):
+	@wraps(f)
+	def wrap(*args, **kwargs):
+		if 'logged_in' in session:
+			return f(*args, **kwargs)
+		else:
+			flash('Unauthorized, Please login', 'danger')
+			return redirect(url_for('login'))
+	return wrap
+
+# Logout route
+@app.route('/logout')
+def logout():
+	session.clear()
+	flash('You are now logged out', 'success')
+	return redirect(url_for('login'))
+
+# Dashboard route
+@app.route('/dashboard')
+@is_logged_in
+def dashboard():
+	return render_template('dashboard.html')
 
 # check if __name__ will be executed
 if __name__ == '__main__':
